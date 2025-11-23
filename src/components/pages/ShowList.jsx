@@ -1,4 +1,3 @@
-// src/components/pages/ShowList.js (파일 전체를 교체해주세요)
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import TaskCard from '../TaskCard';
 import ModalForm from '../ModalForm';
@@ -60,7 +59,6 @@ const ShowList = () => {
             setCurrentTask(n); 
             
             if (modalRef.current) {
-                // $ 대신 window.$ 사용 (혹시 모를 에러 방지)
                 window.$(modalRef.current).modal('show');
             }
         } catch (error) {
@@ -84,7 +82,6 @@ const ShowList = () => {
             <nav className="navbar navbar-inverse">
                 <div className="container-fluid">
                     <div className="navbar-header">
-                        {/* ⚠️ 오류 수정: href="#" 대신 href="/"을 사용하여 접근성 경고 제거 */}
                         <a className="navbar-brand" href="/">CRUD-React</a>
                     </div>
                 </div>

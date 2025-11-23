@@ -1,9 +1,8 @@
-// src/components/ModalForm.js
 import React, { useState, useEffect } from 'react';
 
 const API = "https://6910cb5a7686c0e9c20bb7c5.mockapi.io/Tasks";
 
-// 부모 컴포넌트에서 모달 Ref를 전달받아 Bootstrap Modal 함수를 호출합니다.
+
 const ModalForm = React.forwardRef(({ currentTask, onSaveSuccess }, ref) => {
   const [taskData, setTaskData] = useState({
     title: '',
@@ -14,10 +13,10 @@ const ModalForm = React.forwardRef(({ currentTask, onSaveSuccess }, ref) => {
     category: '',
   });
   
-  // 모달 제목을 위한 상태
+
   const [modalTitle, setModalTitle] = useState('New Task');
 
-  // currentTask가 변경될 때마다 폼 데이터 업데이트 및 모달 제목 변경
+
   useEffect(() => {
     if (currentTask) {
       setTaskData({
@@ -30,7 +29,7 @@ const ModalForm = React.forwardRef(({ currentTask, onSaveSuccess }, ref) => {
       });
       setModalTitle(currentTask.id ? "Modify Task" : "New Task");
     } else {
-      // 추가 모드일 경우 필드 초기화
+  
       setTaskData({ title: '', dueDay: '', detail: '', finish: '', priority: '', category: '' });
       setModalTitle("New Task");
     }
@@ -59,8 +58,6 @@ const ModalForm = React.forwardRef(({ currentTask, onSaveSuccess }, ref) => {
       
       if (response.ok) {
         onSaveSuccess();
-        // 저장 성공 시, Bootstrap Modal을 닫는 로직 실행
-        // ref를 통해 접근하여 Bootstrap JS 함수를 호출합니다.
         if (ref.current) {
           window.$(ref.current).modal('hide');
         }
@@ -73,7 +70,6 @@ const ModalForm = React.forwardRef(({ currentTask, onSaveSuccess }, ref) => {
     }
   };
 
-  // 닫기 버튼 핸들러
   const handleClose = () => {
     if (ref.current) {
       window.$(ref.current).modal('hide');
@@ -81,7 +77,6 @@ const ModalForm = React.forwardRef(({ currentTask, onSaveSuccess }, ref) => {
   };
 
   return (
-    // Bootstrap Modal 구조를 React 컴포넌트 내부에 직접 정의하고, ref를 연결합니다.
     <div id="taskModal" className="modal fade" role="dialog" ref={ref}>
       <div className="modal-dialog">
         <div className="modal-content">
@@ -92,7 +87,6 @@ const ModalForm = React.forwardRef(({ currentTask, onSaveSuccess }, ref) => {
           </div>
 
           <div className="modal-body">
-            {/* currentTask가 있으면 ID를 숨겨서 전달 (사용하지 않아도 되지만 구조 유지를 위해) */}
             <input type="hidden" id="taskId" value={currentTask ? currentTask.id : ''} /> 
 
             <div className="form-group">

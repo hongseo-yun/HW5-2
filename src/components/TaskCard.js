@@ -1,4 +1,3 @@
-// src/components/TaskCard.js
 import React from 'react';
 
 const TaskCard = ({ task, onEdit, onDelete }) => {
