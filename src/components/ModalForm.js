@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 
 const API = "https://6910cb5a7686c0e9c20bb7c5.mockapi.io/Tasks";
 
-const ModalForm = ({ currentTask, onClose, onSaveSuccess }) => {
+// 부모 컴포넌트에서 모달 Ref를 전달받아 Bootstrap Modal 함수를 호출합니다.
+const ModalForm = React.forwardRef(({ currentTask, onSaveSuccess }, ref) => {
   const [taskData, setTaskData] = useState({
     title: '',
     dueDay: '',
@@ -12,8 +13,11 @@ const ModalForm = ({ currentTask, onClose, onSaveSuccess }) => {
     priority: '',
     category: '',
   });
+  
+  // 모달 제목을 위한 상태
+  const [modalTitle, setModalTitle] = useState('New Task');
 
-  // currentTask가 변경될 때마다 폼 데이터 업데이트 (수정 모드)
+  // currentTask가 변경될 때마다 폼 데이터 업데이트 및 모달 제목 변경
   useEffect(() => {
     if (currentTask) {
       setTaskData({
@@ -24,12 +28,11 @@ const ModalForm = ({ currentTask, onClose, onSaveSuccess }) => {
         priority: currentTask.priority || '',
         category: currentTask.category || '',
       });
-      // Modal Title 업데이트
-      $('#modalTitle').text(currentTask.id ? "Modify Task" : "New Task");
+      setModalTitle(currentTask.id ? "Modify Task" : "New Task");
     } else {
       // 추가 모드일 경우 필드 초기화
       setTaskData({ title: '', dueDay: '', detail: '', finish: '', priority: '', category: '' });
-      $('#modalTitle').text("New Task");
+      setModalTitle("New Task");
     }
   }, [currentTask]);
 
@@ -55,10 +58,12 @@ const ModalForm = ({ currentTask, onClose, onSaveSuccess }) => {
       });
       
       if (response.ok) {
-        // 성공 후 부모 컴포넌트에 알림
         onSaveSuccess();
-        // 부트스트랩 모달 닫기
-        $('#taskModal').modal('hide'); 
+        // 저장 성공 시, Bootstrap Modal을 닫는 로직 실행
+        // ref를 통해 접근하여 Bootstrap JS 함수를 호출합니다.
+        if (ref.current) {
+          window.$(ref.current).modal('hide');
+        }
       } else {
         alert("저장에 실패했습니다.");
       }
@@ -68,56 +73,77 @@ const ModalForm = ({ currentTask, onClose, onSaveSuccess }) => {
     }
   };
 
-  // 기존 HTML 구조를 React 컴포넌트로 변환하여 반환
-  // Note: HTML에 있는 #saveBtn을 React에서 제어하기 위해 <div> 구조를 그대로 사용하고 이벤트만 React 함수로 연결합니다.
+  // 닫기 버튼 핸들러
+  const handleClose = () => {
+    if (ref.current) {
+      window.$(ref.current).modal('hide');
+    }
+  };
+
   return (
-    <>
-      <div className="modal-body">
-        <div className="form-group">
-          <label htmlFor="title">Title</label>
-          <input type="text" id="title" className="form-control" value={taskData.title} onChange={handleChange} />
-        </div>
+    // Bootstrap Modal 구조를 React 컴포넌트 내부에 직접 정의하고, ref를 연결합니다.
+    <div id="taskModal" className="modal fade" role="dialog" ref={ref}>
+      <div className="modal-dialog">
+        <div className="modal-content">
 
-        <div className="form-group">
-          <label htmlFor="dueDay">Due Day</label>
-          <input type="date" id="dueDay" className="form-control" value={taskData.dueDay} onChange={handleChange} />
-        </div>
+          <div className="modal-header">
+            <button type="button" className="close" onClick={handleClose}>&times;</button>
+            <h4 id="modalTitle">{modalTitle}</h4>
+          </div>
 
-        <div className="form-group">
-          <label htmlFor="detail">Detail</label>
-          <input type="text" id="detail" className="form-control" value={taskData.detail} onChange={handleChange} />
-        </div>
+          <div className="modal-body">
+            {/* currentTask가 있으면 ID를 숨겨서 전달 (사용하지 않아도 되지만 구조 유지를 위해) */}
+            <input type="hidden" id="taskId" value={currentTask ? currentTask.id : ''} /> 
 
-        <div className="form-group">
-          <label htmlFor="finish">Finish</label>
-          <select id="finish" className="form-control" value={taskData.finish} onChange={handleChange}>
-            <option value="">Select</option>
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-          </select>
-        </div>
+            <div className="form-group">
+              <label htmlFor="title">Title</label>
+              <input type="text" id="title" className="form-control" value={taskData.title} onChange={handleChange} />
+            </div>
 
-        <div className="form-group">
-          <label htmlFor="priority">Priority</label>
-          <select id="priority" className="form-control" value={taskData.priority} onChange={handleChange}>
-            <option value="">Select</option>
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-          </select>
-        </div>
+            <div className="form-group">
+              <label htmlFor="dueDay">Due Day</label>
+              <input type="date" id="dueDay" className="form-control" value={taskData.dueDay} onChange={handleChange} />
+            </div>
 
-        <div className="form-group">
-          <label htmlFor="category">Category</label>
-          <input type="text" id="category" className="form-control" value={taskData.category} onChange={handleChange} />
+            <div className="form-group">
+              <label htmlFor="detail">Detail</label>
+              <input type="text" id="detail" className="form-control" value={taskData.detail} onChange={handleChange} />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="finish">Finish</label>
+              <select id="finish" className="form-control" value={taskData.finish} onChange={handleChange}>
+                <option value="">Select</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="priority">Priority</label>
+              <select id="priority" className="form-control" value={taskData.priority} onChange={handleChange}>
+                <option value="">Select</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="category">Category</label>
+              <input type="text" id="category" className="form-control" value={taskData.category} onChange={handleChange} />
+            </div>
+          </div>
+
+          <div className="modal-footer">
+            <button className="btn btn-success" onClick={handleSave}>Save</button>
+            <button type="button" className="btn btn-default" onClick={handleClose}>Close</button>
+          </div>
+
         </div>
       </div>
-      <div className="modal-footer">
-        <button className="btn btn-success" onClick={handleSave}>Save</button>
-        <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </>
+    </div>
   );
-};
+});
 
 export default ModalForm;
